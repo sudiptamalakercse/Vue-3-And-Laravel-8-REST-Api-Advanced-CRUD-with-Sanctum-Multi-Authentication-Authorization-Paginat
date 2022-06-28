@@ -46,7 +46,9 @@
 							class="collapse first-level"
 						>
 							<li class="sidebar-item">
-								<router-link :to="{ name: 'sign_up_user' }" class="sidebar-link"
+								<router-link
+									:to="{ name: 'add_post_by_admin' }"
+									class="sidebar-link"
 									><i class="mdi mdi-plus-circle"></i
 									><span class="hide-menu"> Add Post </span>
 								</router-link>

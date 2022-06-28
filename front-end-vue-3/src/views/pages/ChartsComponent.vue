@@ -178,7 +178,7 @@ export default {
 		cheange_breadcrumb_heading_and_title_heading('Charts');
 
 		cheange_breadcrumb_links([
-			{ name: 'Home', name_of_route: 'home', disabled: false },
+			{ name: 'Admin Portal', name_of_route: 'home', disabled: false },
 			{ name: 'Charts', name_of_route: 'charts', disabled: true }
 		]);
 

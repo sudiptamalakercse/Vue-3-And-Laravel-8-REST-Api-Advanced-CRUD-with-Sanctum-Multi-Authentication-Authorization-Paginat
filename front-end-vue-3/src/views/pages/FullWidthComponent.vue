@@ -189,7 +189,7 @@ export default {
 		cheange_breadcrumb_heading_and_title_heading('Full Width');
 
 		cheange_breadcrumb_links([
-			{ name: 'Home', name_of_route: 'home', disabled: false },
+			{ name: 'Admin Portal', name_of_route: 'home', disabled: false },
 			{ name: 'Full Width', name_of_route: 'fullwidth', disabled: true }
 		]);
 		onMounted(() => {

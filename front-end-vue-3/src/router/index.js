@@ -9,6 +9,7 @@ import Error403Component from '../views/pages/Error403Component.vue';
 import SignUpAdminComponent from '../views/pages/SignUpAdminComponent.vue';
 import SignUpUserComponent from '../views/pages/SignUpUserComponent.vue';
 import LogInAdminComponent from '../views/pages/LogInAdminComponent.vue';
+import AddPostByAdminComponent from '../views/pages/AddPostByAdminComponent.vue';
 
 import store from '../store/index';
 
@@ -65,6 +66,12 @@ const routes = [
 		name: 'log_in_user',
 		component: SignUpUserComponent,
 		meta: { auth: false }
+	},
+	{
+		path: '/add_post_by_admin',
+		name: 'add_post_by_admin',
+		component: AddPostByAdminComponent,
+		meta: { auth: true }
 	},
 	{
 		path: '/:pathMatch(.*)*',

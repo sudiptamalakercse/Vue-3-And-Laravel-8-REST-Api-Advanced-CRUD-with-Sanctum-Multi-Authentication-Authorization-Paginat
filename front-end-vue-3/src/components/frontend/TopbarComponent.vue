@@ -96,7 +96,12 @@
 						<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 							<li><hr class="dropdown-divider" /></li>
 							<li v-if="is_admin_authenticate">
-								<a class="dropdown-item" href="#">Add Post</a>
+								<router-link
+									:to="{ name: 'add_post_by_admin' }"
+									class="dropdown-item"
+								>
+									Add Post</router-link
+								>
 							</li>
 							<li><hr class="dropdown-divider" /></li>
 							<li v-if="is_admin_authenticate">
@@ -176,13 +181,13 @@
 </template>
 
 <script>
-import useIsAuthenticate from '../../composables/getters/is_authenticate_composable';
+import useIsAuthenticateComposable from '../../composables/getters/is_authenticate_composable';
 import useLogOutComposable from '../../composables/log_out_composable';
 
 export default {
 	name: 'TopbarComponent',
 	setup() {
-		const { is_admin_authenticate, user_data } = useIsAuthenticate();
+		const { is_admin_authenticate, user_data } = useIsAuthenticateComposable();
 
 		const { log_out, is_btn_deactive } = useLogOutComposable();
 		const onLogOut = () => {
