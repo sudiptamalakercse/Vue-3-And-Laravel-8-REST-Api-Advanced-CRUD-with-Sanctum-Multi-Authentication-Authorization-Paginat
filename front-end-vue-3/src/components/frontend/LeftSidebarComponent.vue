@@ -54,7 +54,9 @@
 								</router-link>
 							</li>
 							<li class="sidebar-item">
-								<router-link :to="{ name: 'sign_up_user' }" class="sidebar-link"
+								<router-link
+									:to="{ name: 'show_posts_for_admin_and_user' }"
+									class="sidebar-link"
 									><i class="mdi mdi-view-list"></i
 									><span class="hide-menu"> View All Posts </span>
 								</router-link>

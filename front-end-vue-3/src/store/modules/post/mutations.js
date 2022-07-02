@@ -1,5 +1,5 @@
 export default {
-	set_user_data(state, user_data) {
-		state.user_data = user_data;
+	cheange_search_value(state, payload) {
+		state.search_value = payload;
 	}
 };

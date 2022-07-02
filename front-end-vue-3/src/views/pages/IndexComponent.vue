@@ -24,7 +24,7 @@ import useBreadcrumbAndTitle from '../../composables/breadcrumb_and_title_compos
 import useIsAuthenticate from '../../composables/getters/is_authenticate_composable';
 import useNotifyGetterComposable from '../../composables/getters/notify_getter_composable';
 
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, onUpdated } from 'vue';
 import { useStore } from 'vuex';
 
 export default {
@@ -40,19 +40,23 @@ export default {
 
 		const { is_admin_authenticate } = useIsAuthenticate();
 
-		if (is_admin_authenticate.value == true) {
-			cheange_breadcrumb_heading_and_title_heading('Admin Portal');
+		function set_breadcrumb_heading_and_title_heading_and_breadcrumb_links() {
+			if (is_admin_authenticate.value == true) {
+				cheange_breadcrumb_heading_and_title_heading('Admin Portal');
 
-			cheange_breadcrumb_links([
-				{ name: 'Admin Portal', name_of_route: 'home', disabled: true }
-			]);
-		} else {
-			cheange_breadcrumb_heading_and_title_heading('Admin & User Portal');
+				cheange_breadcrumb_links([
+					{ name: 'Admin Portal', name_of_route: 'home', disabled: true }
+				]);
+			} else {
+				cheange_breadcrumb_heading_and_title_heading('Admin & User Portal');
 
-			cheange_breadcrumb_links([
-				{ name: 'Admin & User Portal', name_of_route: 'home', disabled: true }
-			]);
+				cheange_breadcrumb_links([
+					{ name: 'Admin & User Portal', name_of_route: 'home', disabled: true }
+				]);
+			}
 		}
+
+		set_breadcrumb_heading_and_title_heading_and_breadcrumb_links();
 
 		onMounted(() => {
 			let timeout = setTimeout(() => {
@@ -60,6 +64,10 @@ export default {
 				store.commit('notify_module/cheange_response_message', '');
 			}, 5000);
 			store.commit('notify_module/cheange_timeout', timeout);
+		});
+
+		onUpdated(() => {
+			set_breadcrumb_heading_and_title_heading_and_breadcrumb_links();
 		});
 
 		onUnmounted(() => {

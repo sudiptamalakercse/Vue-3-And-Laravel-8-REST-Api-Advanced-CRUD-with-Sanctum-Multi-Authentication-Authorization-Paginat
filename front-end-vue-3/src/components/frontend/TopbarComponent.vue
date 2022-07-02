@@ -105,7 +105,12 @@
 							</li>
 							<li><hr class="dropdown-divider" /></li>
 							<li v-if="is_admin_authenticate">
-								<a class="dropdown-item" href="#">View All Posts</a>
+								<router-link
+									:to="{ name: 'show_posts_for_admin_and_user' }"
+									class="dropdown-item"
+								>
+									View All Posts</router-link
+								>
 							</li>
 							<li><hr class="dropdown-divider" /></li>
 						</ul>
@@ -113,26 +118,17 @@
 					<!-- ============================================================== -->
 					<!-- Search -->
 					<!-- ============================================================== -->
-					<li class="nav-item search-box">
-						<a
-							class="nav-link waves-effect waves-dark"
-							href="javascript:void(0)"
-							><i v-if="is_admin_authenticate" class="mdi mdi-magnify fs-4"></i
-						></a>
-						<form class="app-search position-absolute">
-							<input
-								v-if="is_admin_authenticate"
-								type="text"
-								class="form-control"
-								placeholder="Search &amp; enter"
-							/>
-							<a class="srh-btn"
-								><i
-									v-if="is_admin_authenticate"
-									class="mdi mdi-window-close"
-								></i
-							></a>
-						</form>
+				</ul>
+				<ul v-if="is_admin_authenticate" class="navbar-nav float-start me-auto">
+					<li class="nav-item d-flex align-items-center">
+						<input
+							style="width: 400px"
+							type="text"
+							class="form-control"
+							placeholder="Search &amp; Enter"
+							:value="search_value"
+							@keyup.enter="onChangeSearchValue"
+						/>
 					</li>
 				</ul>
 				<!-- ============================================================== -->
@@ -183,13 +179,21 @@
 <script>
 import useIsAuthenticateComposable from '../../composables/getters/is_authenticate_composable';
 import useLogOutComposable from '../../composables/log_out_composable';
+import usePostListComposable from '../../composables/post_list_composable';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 export default {
 	name: 'TopbarComponent',
 	setup() {
+		const store = useStore();
+		const router = useRouter();
 		const { is_admin_authenticate, user_data } = useIsAuthenticateComposable();
 
 		const { log_out, is_btn_deactive } = useLogOutComposable();
+
+		const { search_value } = usePostListComposable();
+
 		const onLogOut = () => {
 			log_out({
 				request_link: 'logout/admin',
@@ -197,17 +201,30 @@ export default {
 				token: user_data.value.token
 			});
 		};
+
+		const onChangeSearchValue = event => {
+			//event.preventDefault();
+			store.commit('post_module/cheange_search_value', event.target.value);
+			router.push({ name: 'show_posts_for_admin_and_user' });
+		};
+
 		return {
 			is_admin_authenticate,
 			user_data,
 			onLogOut,
-			is_btn_deactive
+			is_btn_deactive,
+			onChangeSearchValue,
+			search_value
 		};
 	}
 };
 </script>
 
 <style scoped>
+li .router-link-exact-active {
+	background: #27a9e3;
+	color: #ffffff;
+}
 .disable_btn {
 	cursor: not-allowed;
 	pointer-events: none;

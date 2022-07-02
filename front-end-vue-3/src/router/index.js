@@ -10,6 +10,7 @@ import SignUpAdminComponent from '../views/pages/SignUpAdminComponent.vue';
 import SignUpUserComponent from '../views/pages/SignUpUserComponent.vue';
 import LogInAdminComponent from '../views/pages/LogInAdminComponent.vue';
 import AddPostByAdminComponent from '../views/pages/AddPostByAdminComponent.vue';
+import ShowPostsForAdminAndUserComponent from '../views/pages/ShowPostsForAdminAndUserComponent.vue';
 
 import store from '../store/index';
 
@@ -71,6 +72,12 @@ const routes = [
 		path: '/add_post_by_admin',
 		name: 'add_post_by_admin',
 		component: AddPostByAdminComponent,
+		meta: { auth: true }
+	},
+	{
+		path: '/show_posts_for_admin_and_user',
+		name: 'show_posts_for_admin_and_user',
+		component: ShowPostsForAdminAndUserComponent,
 		meta: { auth: true }
 	},
 	{

@@ -100,7 +100,7 @@ export default function useAddAndEditPostByAdminComposable() {
 
 			if (payload.action_type == 'add') {
 				request_type_to_server = 'post';
-			} else if (payload.action_type == 'edit') {
+			} else if (payload.action_type == 'update') {
 				request_type_to_server = 'put';
 			}
 
@@ -159,20 +159,21 @@ export default function useAddAndEditPostByAdminComposable() {
 								'notify_module/cheange_response_message',
 								'Your Record is Created Successfully!'
 							);
-						} else if (payload.action_type == 'edit') {
+						} else if (payload.action_type == 'update') {
 							store.commit(
 								'notify_module/cheange_response_message',
 								'Your Record is Updated Successfully!'
 							);
 						}
 					} else {
+						store.commit('notify_module/cheange_response_message', '');
 						store.commit('notify_module/cheange_error_messages_from_server', [
 							'Wrong Occurs in Server!'
 						]);
 					}
 
 					setTimeout_(5000);
-					router.push({ name: 'home' });
+					router.push({ name: 'show_posts_for_admin_and_user' });
 				}
 			}
 		}
