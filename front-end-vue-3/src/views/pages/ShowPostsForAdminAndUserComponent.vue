@@ -20,12 +20,16 @@
 						<thead class="thead-light">
 							<tr>
 								<th class="text-center align-middle">
-									Select All
+									<span v-if="post_list.length > 1">
+										{{ all_select == true ? 'Uncheck All' : 'Check All' }}
+									</span>
 									<br />
 									<input
 										v-if="post_list.length > 1"
 										type="checkbox"
 										id="mainCheckbox"
+										@click="onSelectAllViaCheckBox"
+										v-model="all_select"
 									/>
 								</th>
 								<th class="text-center align-middle" scope="col">Name</th>
@@ -39,12 +43,21 @@
 								<td colspan="5" class="text-center">No Record!</td>
 							</tr>
 
-							<tr v-else v-for="post in post_list" :key="post.id">
+							<tr
+								v-else
+								v-for="post in post_list"
+								:key="post.id"
+								:class="{
+									background: ids_for_delete.includes(post.id)
+								}"
+							>
 								<th class="text-center">
 									<input
 										v-if="post_list.length > 1"
 										type="checkbox"
 										class="listCheckbox"
+										v-model="ids_for_delete"
+										:value="post.id"
 									/>
 								</th>
 								<td class="text-center">{{ post.name }}</td>
@@ -86,6 +99,23 @@
 							</tr>
 						</tbody>
 					</table>
+				</div>
+				<div
+					class="text-center"
+					v-if="post_list.length > 1 && is_admin_authenticate == true"
+				>
+					<span
+						@click="onDeleteSelectedPosts"
+						style="cursor: pointer"
+						:class="{
+							disable_btn: is_checked_delete_btn_deactive,
+							badge: true,
+							'rounded-pill': true,
+							'bg-danger': true,
+							'mb-4': true
+						}"
+						>Delete Selected Records</span
+					>
 				</div>
 			</div>
 
@@ -146,7 +176,12 @@ export default {
 			laravel_data,
 			is_btn_deactive,
 			change_search_value,
-			search_value
+			search_value,
+			is_checked_delete_btn_deactive,
+			delete_selected_posts,
+			select_all_via_check_box,
+			all_select,
+			ids_for_delete
 		} = usePostListComposable();
 
 		const { response_message } = useNotifyGetterComposable();
@@ -168,6 +203,13 @@ export default {
 			change_search_value(event.target.value);
 		};
 
+		const onSelectAllViaCheckBox = () => {
+			select_all_via_check_box();
+		};
+		const onDeleteSelectedPosts = () => {
+			delete_selected_posts();
+		};
+
 		setTimeout(() => {
 			onShowPostList();
 		}, 1000);
@@ -179,12 +221,18 @@ export default {
 		});
 
 		return {
+			is_admin_authenticate,
 			post_list,
 			laravel_data,
 			is_btn_deactive,
 			onShowPostList,
 			onChangeSearchValue,
-			search_value
+			search_value,
+			is_checked_delete_btn_deactive,
+			onDeleteSelectedPosts,
+			onSelectAllViaCheckBox,
+			all_select,
+			ids_for_delete
 		};
 	}
 };
@@ -194,9 +242,10 @@ export default {
 .disable_btn {
 	cursor: not-allowed;
 	pointer-events: none;
-
-	/*Button disabled - CSS color class*/
 	color: #c0c0c0;
 	background-color: #ffffff;
+}
+.background {
+	background-color: #acddde;
 }
 </style>

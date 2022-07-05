@@ -2,21 +2,20 @@ import { ref, onUnmounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import useNotifyGetterComposable from './getters/notify_getter_composable';
-import usePostGetterComposable from './getters/post_getter_composable';
 import useIsAuthenticateComposable from '../composables/getters/is_authenticate_composable';
 import axios_object_with_base_url_and_token_and_common_headers from '../services/axios_object_base_url_and_token_and_common_headers';
-import useDeletePostByCheckboxComposable from '../composables/delete_post_by_checkbox';
 
-export default function usePostListComposable() {
+export default function useDeletePostByCheckboxComposable(
+	post_list,
+	onShowPostList
+) {
 	const store = useStore();
 	const router = useRouter();
 	const { timeout } = useNotifyGetterComposable();
-	const { search_value } = usePostGetterComposable();
+
 	const { user_data } = useIsAuthenticateComposable();
-
-	const post_list = ref([]);
-	const laravel_data = ref({});
-
+	const ids_for_delete = ref([]);
+	const all_select = ref(false);
 	const is_btn_deactive = ref(true);
 	let finally_done = false;
 
@@ -28,7 +27,7 @@ export default function usePostListComposable() {
 		store.commit('notify_module/cheange_timeout', timeout);
 	};
 
-	const onShowPostList = async (page = 1) => {
+	const delete_selected_posts = async () => {
 		is_btn_deactive.value = !is_btn_deactive.value;
 
 		//Storing in database code
@@ -42,21 +41,16 @@ export default function usePostListComposable() {
 		let axios_object = axios_object_with_base_url_and_token_and_common_headers(
 			user_data.value.token
 		);
-
-		let request_link = null;
-
-		if (search_value.value) {
-			request_link = `posts/search/${search_value.value}?page=${page}`;
-		} else {
-			request_link = `posts?page=${page}`;
-		}
-
+		let data = { post_ids: ids_for_delete.value };
 		await axios_object
-			.get(request_link)
+			.post('posts/delete-selected', data)
 			.then(function (response) {
 				if (response.status == 200 && response.statusText == 'OK') {
-					post_list.value = response.data.data;
-					laravel_data.value = response.data;
+					onShowPostList();
+					ids_for_delete.value = [];
+
+					all_select.value = false;
+
 					finally_done = true;
 				}
 			})
@@ -99,12 +93,10 @@ export default function usePostListComposable() {
 				setTimeout_(5000);
 			} else {
 				if (finally_done == true) {
-					if (post_list.value.length > 0) {
-						store.commit(
-							'notify_module/cheange_response_message',
-							'Records are Loaded Successfully!'
-						);
-					}
+					store.commit(
+						'notify_module/cheange_response_message',
+						'Selected Records are Deleted Successfully!'
+					);
 				} else {
 					store.commit('notify_module/cheange_response_message', '');
 					store.commit('notify_module/cheange_error_messages_from_server', [
@@ -117,16 +109,25 @@ export default function usePostListComposable() {
 		}
 	};
 
-	const change_search_value = search_value => {
-		store.commit('post_module/cheange_search_value', search_value);
-		onShowPostList();
-	};
-
-	watch(search_value, (new_search_value, old_search_value) => {
-		if (new_search_value !== old_search_value) {
+	const select_all_via_check_box = () => {
+		if (all_select.value == false) {
+			all_select.value = true;
+			is_btn_deactive.value = false;
+			post_list.value.forEach(post => {
+				ids_for_delete.value.push(post.id);
+			});
+		} else {
+			is_btn_deactive.value = true;
 			all_select.value = false;
 			ids_for_delete.value = [];
-			onShowPostList();
+		}
+	};
+
+	watch(ids_for_delete, new_ids_for_delete_value => {
+		if (new_ids_for_delete_value.length > 0) {
+			is_btn_deactive.value = false;
+		} else {
+			is_btn_deactive.value = true;
 		}
 	});
 
@@ -134,22 +135,8 @@ export default function usePostListComposable() {
 		clearTimeout(timeout.value);
 	});
 
-	const {
-		is_checked_delete_btn_deactive,
-		delete_selected_posts,
-		select_all_via_check_box,
-		all_select,
-		ids_for_delete
-	} = useDeletePostByCheckboxComposable(post_list, onShowPostList);
-
 	return {
-		onShowPostList,
-		post_list,
-		is_btn_deactive,
-		laravel_data,
-		change_search_value,
-		search_value,
-		is_checked_delete_btn_deactive,
+		is_checked_delete_btn_deactive: is_btn_deactive,
 		delete_selected_posts,
 		select_all_via_check_box,
 		all_select,
