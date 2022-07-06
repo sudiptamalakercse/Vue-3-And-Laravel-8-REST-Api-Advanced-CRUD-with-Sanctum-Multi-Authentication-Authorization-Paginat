@@ -13,7 +13,7 @@ export default function useDeletePostByCheckboxComposable(
 	const store = useStore();
 	const router = useRouter();
 	const { timeout } = useNotifyGetterComposable();
-	const { recent_page_value } = usePostGetterComposable();
+	const { recent_page_value, search_value } = usePostGetterComposable();
 
 	const { user_data } = useIsAuthenticateComposable();
 	const ids_for_delete = ref([]);
@@ -49,8 +49,16 @@ export default function useDeletePostByCheckboxComposable(
 			.then(function (response) {
 				finally_done = true;
 				if (response.status == 200 && response.statusText == 'OK') {
+					let request_link = null;
+
+					if (search_value.value) {
+						request_link = `posts/search/${search_value.value}`;
+					} else {
+						request_link = 'posts';
+					}
+
 					axios_object
-						.get('posts')
+						.get(request_link)
 						.then(function (res) {
 							if (res.status == 200 && res.statusText == 'OK') {
 								let total_records = res.data.meta.total;
