@@ -55,7 +55,11 @@ export default function useDeletePostByCheckboxComposable(
 							if (res.status == 200 && res.statusText == 'OK') {
 								let total_records = res.data.meta.total;
 
-								let total_page_num = Math.ceil(total_records / 6);
+								let records_per_page = res.data.meta.per_page;
+
+								let total_page_num = Math.ceil(
+									total_records / records_per_page
+								);
 
 								let page = null;
 
