@@ -8,7 +8,12 @@ export default function usePostGetterComposable() {
 		return store.state.post_module.search_value;
 	});
 
+	const recent_page_value = computed(() => {
+		return store.state.post_module.recent_page_value;
+	});
+
 	return {
-		search_value
+		search_value,
+		recent_page_value
 	};
 }

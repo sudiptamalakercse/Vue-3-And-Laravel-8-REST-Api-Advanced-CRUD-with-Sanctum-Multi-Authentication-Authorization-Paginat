@@ -2,6 +2,7 @@ import { ref, onUnmounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import useNotifyGetterComposable from './getters/notify_getter_composable';
+import usePostGetterComposable from './getters/post_getter_composable';
 import useIsAuthenticateComposable from '../composables/getters/is_authenticate_composable';
 import axios_object_with_base_url_and_token_and_common_headers from '../services/axios_object_base_url_and_token_and_common_headers';
 
@@ -12,6 +13,7 @@ export default function useDeletePostByCheckboxComposable(
 	const store = useStore();
 	const router = useRouter();
 	const { timeout } = useNotifyGetterComposable();
+	const { recent_page_value } = usePostGetterComposable();
 
 	const { user_data } = useIsAuthenticateComposable();
 	const ids_for_delete = ref([]);
@@ -45,13 +47,34 @@ export default function useDeletePostByCheckboxComposable(
 		await axios_object
 			.post('posts/delete-selected', data)
 			.then(function (response) {
+				finally_done = true;
 				if (response.status == 200 && response.statusText == 'OK') {
-					onShowPostList();
-					ids_for_delete.value = [];
+					axios_object
+						.get('posts')
+						.then(function (res) {
+							if (res.status == 200 && res.statusText == 'OK') {
+								let total_records = res.data.meta.total;
 
-					all_select.value = false;
+								let total_page_num = Math.ceil(total_records / 6);
 
-					finally_done = true;
+								let page = null;
+
+								if (recent_page_value.value <= total_page_num) {
+									page = recent_page_value.value;
+								} else {
+									page = total_page_num;
+								}
+
+								onShowPostList(page);
+
+								ids_for_delete.value = [];
+
+								all_select.value = false;
+							}
+						})
+						.catch(function (error) {
+							console.log(error);
+						});
 				}
 			})
 			.catch(function (error) {

@@ -4,7 +4,8 @@ export default {
 	namespaced: true,
 	state() {
 		return {
-			search_value: ''
+			search_value: '',
+			recent_page_value: 1
 		};
 	},
 	mutations

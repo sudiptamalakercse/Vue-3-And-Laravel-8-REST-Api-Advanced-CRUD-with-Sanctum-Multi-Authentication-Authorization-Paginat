@@ -43,6 +43,12 @@ export default function usePostListComposable() {
 			user_data.value.token
 		);
 
+		store.commit('post_module/cheange_recent_page_value', page);
+
+		all_select.value = false;
+
+		ids_for_delete.value = [];
+
 		let request_link = null;
 
 		if (search_value.value) {
