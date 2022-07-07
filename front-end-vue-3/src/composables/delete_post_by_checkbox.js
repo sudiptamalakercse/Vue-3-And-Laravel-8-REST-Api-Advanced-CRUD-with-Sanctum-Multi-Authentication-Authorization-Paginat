@@ -12,7 +12,7 @@ export default function useDeletePostByCheckboxComposable(
 ) {
 	const store = useStore();
 	const router = useRouter();
-	const { timeout } = useNotifyGetterComposable();
+	const { timeout, error_messages_from_server } = useNotifyGetterComposable();
 	const { recent_page_value, search_value } = usePostGetterComposable();
 
 	const { user_data } = useIsAuthenticateComposable();
@@ -95,6 +95,14 @@ export default function useDeletePostByCheckboxComposable(
 						localStorage.removeItem('user_data');
 						store.commit('authentication_module/set_user_data', {});
 						router.push({ name: 'home' });
+					} else if (error.response.data.message == 'Unauthorized!!') {
+						store.commit('notify_module/cheange_response_message', '');
+						let mess = error.response.data.message;
+						store.commit('notify_module/cheange_error_messages_from_server', [
+							mess
+						]);
+						ids_for_delete.value = [];
+						all_select.value = false;
 					}
 				} else if (
 					error.code == 'ERR_BAD_RESPONSE' ||
@@ -132,7 +140,7 @@ export default function useDeletePostByCheckboxComposable(
 						'notify_module/cheange_response_message',
 						'Selected Records are Deleted Successfully!'
 					);
-				} else {
+				} else if (error_messages_from_server.value.length == 0) {
 					store.commit('notify_module/cheange_response_message', '');
 					store.commit('notify_module/cheange_error_messages_from_server', [
 						'Wrong Occurs in Server!'
