@@ -19,23 +19,17 @@ export default {
 			.post(payload.request_link, payload.data)
 			.then(function (response) {
 				let user_data = {};
-				if (payload.user_type == 'admin') {
-					user_data.token = response.data.token;
-					user_data.id = response.data.admin.id;
-					user_data.name = response.data.admin.name;
-					user_data.email = response.data.admin.email;
-					user_data.created_at = response.data.admin.created_at;
-					user_data.updated_at = response.data.admin.updated_at;
-					user_data.user_type = 'admin';
-				} else if (payload.user_type == 'user') {
-					user_data.token = response.data.token;
-					user_data.id = response.data.user.id;
-					user_data.name = response.data.user.name;
-					user_data.email = response.data.user.email;
-					user_data.created_at = response.data.user.created_at;
-					user_data.updated_at = response.data.user.updated_at;
-					user_data.user_type = 'user';
-				}
+				let user_type = null;
+
+				user_type = payload.user_type;
+
+				user_data.token = response.data.token;
+				user_data.id = response.data[`${user_type}`].id;
+				user_data.name = response.data[`${user_type}`].name;
+				user_data.email = response.data[`${user_type}`].email;
+				user_data.created_at = response.data[`${user_type}`].created_at;
+				user_data.updated_at = response.data[`${user_type}`].updated_at;
+				user_data.user_type = user_type;
 
 				let some_data = { response, user_data };
 				context.dispatch('response_status_check_and_do_something', some_data);

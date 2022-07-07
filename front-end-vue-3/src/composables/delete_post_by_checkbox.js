@@ -5,6 +5,7 @@ import useNotifyGetterComposable from './getters/notify_getter_composable';
 import usePostGetterComposable from './getters/post_getter_composable';
 import useIsAuthenticateComposable from '../composables/getters/is_authenticate_composable';
 import axios_object_with_base_url_and_token_and_common_headers from '../services/axios_object_base_url_and_token_and_common_headers';
+import { set_page_num_after_deleting_record } from '../services/generel';
 
 export default function useDeletePostByCheckboxComposable(
 	post_list,
@@ -48,46 +49,15 @@ export default function useDeletePostByCheckboxComposable(
 			.post('posts/delete-selected', data)
 			.then(function (response) {
 				finally_done = true;
-				if (response.status == 200 && response.statusText == 'OK') {
-					let request_link = null;
-
-					if (search_value.value) {
-						request_link = `posts/search/${search_value.value}`;
-					} else {
-						request_link = 'posts';
-					}
-
-					axios_object
-						.get(request_link)
-						.then(function (res) {
-							if (res.status == 200 && res.statusText == 'OK') {
-								let total_records = res.data.meta.total;
-
-								let records_per_page = res.data.meta.per_page;
-
-								let total_page_num = Math.ceil(
-									total_records / records_per_page
-								);
-
-								let page = null;
-
-								if (recent_page_value.value <= total_page_num) {
-									page = recent_page_value.value;
-								} else {
-									page = total_page_num;
-								}
-
-								onShowPostList(page);
-
-								ids_for_delete.value = [];
-
-								all_select.value = false;
-							}
-						})
-						.catch(function (error) {
-							console.log(error);
-						});
-				}
+				set_page_num_after_deleting_record(
+					response,
+					search_value,
+					axios_object,
+					recent_page_value,
+					onShowPostList,
+					ids_for_delete,
+					all_select
+				);
 			})
 			.catch(function (error) {
 				if (error.code == 'ERR_BAD_REQUEST') {
