@@ -1,24 +1,20 @@
-import { ref, onUnmounted, watch } from 'vue';
+import { onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import useNotifyGetterComposable from './getters/notify_getter_composable';
 import usePostGetterComposable from './getters/post_getter_composable';
-import useIsAuthenticateComposable from '../composables/getters/is_authenticate_composable';
+import useIsAuthenticateComposable from './getters/is_authenticate_composable';
 import axios_object_with_base_url_and_token_and_common_headers from '../services/axios_object_base_url_and_token_and_common_headers';
-import useDeletePostByCheckboxComposable from '../composables/delete_post_by_checkbox';
-import useDeleteSingleRecordComposable from '../composables/delete_single_record';
+import { set_page_num_after_deleting_record } from '../services/generel';
 
-export default function usePostListComposable() {
+export default function useDeleteSingleRecordComposable(onShowPostList) {
 	const store = useStore();
 	const router = useRouter();
-	const { timeout, response_message } = useNotifyGetterComposable();
-	const { search_value } = usePostGetterComposable();
+	const { timeout, error_messages_from_server } = useNotifyGetterComposable();
+	const { recent_page_value, search_value } = usePostGetterComposable();
+
 	const { user_data } = useIsAuthenticateComposable();
 
-	const post_list = ref([]);
-	const laravel_data = ref({});
-
-	const is_btn_deactive = ref(true);
 	let finally_done = false;
 
 	const setTimeout_ = time => {
@@ -29,7 +25,7 @@ export default function usePostListComposable() {
 		store.commit('notify_module/cheange_timeout', timeout);
 	};
 
-	const onShowPostList = async (page = 1) => {
+	const delete_single_record = async id_for_delete => {
 		//Storing in database code
 		store.commit('notify_module/cheange_error_messages_from_server', '');
 		store.commit('notify_module/cheange_response_message', '');
@@ -42,28 +38,19 @@ export default function usePostListComposable() {
 			user_data.value.token
 		);
 
-		store.commit('post_module/cheange_recent_page_value', page);
-
-		all_select.value = false;
-
-		ids_for_delete.value = [];
-
-		let request_link = null;
-
-		if (search_value.value) {
-			request_link = `posts/search/${search_value.value}?page=${page}`;
-		} else {
-			request_link = `posts?page=${page}`;
-		}
-
 		await axios_object
-			.get(request_link)
+			.delete(`posts/${id_for_delete}`)
 			.then(function (response) {
-				if (response.status == 200 && response.statusText == 'OK') {
-					post_list.value = response.data.data;
-					laravel_data.value = response.data;
-					finally_done = true;
-				}
+				finally_done = true;
+				set_page_num_after_deleting_record(
+					response,
+					search_value,
+					axios_object,
+					recent_page_value,
+					onShowPostList,
+					null,
+					null
+				);
 			})
 			.catch(function (error) {
 				if (error.code == 'ERR_BAD_REQUEST') {
@@ -71,6 +58,12 @@ export default function usePostListComposable() {
 						localStorage.removeItem('user_data');
 						store.commit('authentication_module/set_user_data', {});
 						router.push({ name: 'home' });
+					} else if (error.response.data.message == 'Unauthorized!!') {
+						store.commit('notify_module/cheange_response_message', '');
+						let mess = error.response.data.message;
+						store.commit('notify_module/cheange_error_messages_from_server', [
+							mess
+						]);
 					}
 				} else if (
 					error.code == 'ERR_BAD_RESPONSE' ||
@@ -91,7 +84,6 @@ export default function usePostListComposable() {
 			store.commit('notify_module/cheange_error_messages_from_server', [
 				'You Are Not Connected With Internet or Server is Down!'
 			]);
-
 			setTimeout_(5000);
 		} else {
 			if (all_errors.length > 0) {
@@ -103,13 +95,11 @@ export default function usePostListComposable() {
 				setTimeout_(5000);
 			} else {
 				if (finally_done == true) {
-					if (post_list.value.length > 0) {
-						store.commit(
-							'notify_module/cheange_response_message',
-							'Records are Loaded Successfully!'
-						);
-					}
-				} else {
+					store.commit(
+						'notify_module/cheange_response_message',
+						'Record is Deleted Successfully!'
+					);
+				} else if (error_messages_from_server.value.length == 0) {
 					store.commit('notify_module/cheange_response_message', '');
 					store.commit('notify_module/cheange_error_messages_from_server', [
 						'Wrong Occurs in Server!'
@@ -121,54 +111,11 @@ export default function usePostListComposable() {
 		}
 	};
 
-	const change_search_value = search_value => {
-		store.commit('post_module/cheange_search_value', search_value);
-		onShowPostList();
-	};
-
-	watch(search_value, (new_search_value, old_search_value) => {
-		if (new_search_value !== old_search_value) {
-			all_select.value = false;
-			ids_for_delete.value = [];
-			onShowPostList();
-		}
-	});
-
-	watch(response_message, new_response_message => {
-		if (new_response_message == 'Loading...') {
-			is_btn_deactive.value = true;
-		} else {
-			is_btn_deactive.value = false;
-		}
-	});
-
 	onUnmounted(() => {
 		clearTimeout(timeout.value);
 	});
 
-	const {
-		is_checked_delete_btn_deactive,
-		delete_selected_posts,
-		select_all_via_check_box,
-		all_select,
-		ids_for_delete
-	} = useDeletePostByCheckboxComposable(post_list, onShowPostList);
-
-	const { delete_single_record } =
-		useDeleteSingleRecordComposable(onShowPostList);
-
 	return {
-		onShowPostList,
-		post_list,
-		is_btn_deactive,
-		laravel_data,
-		change_search_value,
-		search_value,
-		is_checked_delete_btn_deactive,
-		delete_selected_posts,
-		delete_single_record,
-		select_all_via_check_box,
-		all_select,
-		ids_for_delete
+		delete_single_record
 	};
 }

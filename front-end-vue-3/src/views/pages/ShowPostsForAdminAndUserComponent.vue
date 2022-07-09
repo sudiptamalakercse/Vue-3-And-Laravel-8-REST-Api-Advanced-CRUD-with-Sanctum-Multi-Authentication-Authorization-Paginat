@@ -75,6 +75,8 @@
 										>View</span
 									>
 									<span
+										v-if="is_admin_authenticate == true"
+										@click="onEditSingleRecord(post.id)"
 										style="cursor: pointer"
 										:class="{
 											disable_btn: is_btn_deactive,
@@ -86,6 +88,8 @@
 										>Edit</span
 									>
 									<span
+										v-if="is_admin_authenticate == true"
+										@click="onDeleteSingleRecord(post.id)"
 										style="cursor: pointer"
 										:class="{
 											disable_btn: is_btn_deactive,
@@ -152,7 +156,9 @@ import useIsAuthenticate from '../../composables/getters/is_authenticate_composa
 import usePostListComposable from '../../composables/post_list_composable';
 import useNotifyGetterComposable from '../../composables/getters/notify_getter_composable';
 import LaravelVuePagination from 'laravel-vue-pagination';
+import usePostGetterComposable from '../../composables/getters/post_getter_composable';
 import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 export default {
 	name: 'ShowPostsForAdminAndUserComponent',
@@ -160,6 +166,7 @@ export default {
 		Pagination: LaravelVuePagination
 	},
 	setup() {
+		const router = useRouter();
 		// Breadcrumb And Title related composable
 		const {
 			cheange_breadcrumb_links,
@@ -179,12 +186,16 @@ export default {
 			search_value,
 			is_checked_delete_btn_deactive,
 			delete_selected_posts,
+			delete_single_record,
 			select_all_via_check_box,
 			all_select,
 			ids_for_delete
 		} = usePostListComposable();
 
-		const { response_message } = useNotifyGetterComposable();
+		const { response_message, error_messages_from_server } =
+			useNotifyGetterComposable();
+
+		const { recent_page_value } = usePostGetterComposable();
 
 		function set_breadcrumb_heading_and_title_heading_and_breadcrumb_links() {
 			cheange_breadcrumb_heading_and_title_heading('Posts');
@@ -209,13 +220,29 @@ export default {
 		const onDeleteSelectedPosts = () => {
 			delete_selected_posts();
 		};
-
+		const onDeleteSingleRecord = id_for_delete => {
+			delete_single_record(id_for_delete);
+		};
+		const onEditSingleRecord = id_for_update => {
+			router.push({
+				name: 'update_post_by_admin',
+				params: { post_id: id_for_update }
+			});
+		};
 		setTimeout(() => {
-			onShowPostList();
+			if (recent_page_value.value != 1) {
+				onShowPostList(recent_page_value.value);
+			} else {
+				onShowPostList();
+			}
 		}, 1000);
 
 		onMounted(() => {
-			if (response_message.value !== 'Your Record is Created Successfully!') {
+			if (
+				response_message.value !== 'Your Record is Created Successfully!' &&
+				response_message.value !== 'Your Record is Updated Successfully!' &&
+				error_messages_from_server.value[0] !== 'Unauthorized!!'
+			) {
 				clear_notify_messages();
 			}
 		});
@@ -232,7 +259,9 @@ export default {
 			onDeleteSelectedPosts,
 			onSelectAllViaCheckBox,
 			all_select,
-			ids_for_delete
+			ids_for_delete,
+			onDeleteSingleRecord,
+			onEditSingleRecord
 		};
 	}
 };

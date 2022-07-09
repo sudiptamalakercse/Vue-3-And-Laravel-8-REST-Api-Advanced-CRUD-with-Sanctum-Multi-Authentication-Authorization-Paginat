@@ -13,9 +13,11 @@
 							>
 								<a v-if="link.disabled == true">{{ link.name }}</a>
 
-								<router-link v-else :to="{ name: link.name_of_route }">{{
-									link.name
-								}}</router-link>
+								<router-link
+									v-else
+									:to="{ name: link.name_of_route, params: { ...link.params } }"
+									>{{ link.name }}</router-link
+								>
 							</li>
 						</ol>
 					</nav>

@@ -36,9 +36,13 @@ const set_page_num_after_deleting_record = (
 
 					onShowPostList(page);
 
-					ids_for_delete.value = [];
+					if (ids_for_delete != null) {
+						ids_for_delete.value = [];
+					}
 
-					all_select.value = false;
+					if (all_select != null) {
+						all_select.value = false;
+					}
 				}
 			})
 			.catch(function (error) {

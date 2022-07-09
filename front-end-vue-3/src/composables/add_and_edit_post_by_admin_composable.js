@@ -7,7 +7,7 @@ import axios_object_with_base_url_and_token_and_common_headers from '../services
 export default function useAddAndEditPostByAdminComposable() {
 	const store = useStore();
 	const router = useRouter();
-	const { timeout } = useNotifyGetterComposable();
+	const { timeout, error_messages_from_server } = useNotifyGetterComposable();
 
 	const error_messages = reactive({
 		name: '',
@@ -109,7 +109,10 @@ export default function useAddAndEditPostByAdminComposable() {
 				payload.data
 			)
 				.then(function (response) {
-					if (response.status == 201 && response.statusText == 'Created') {
+					if (
+						(response.status == 201 && response.statusText == 'Created') ||
+						(response.status == 200 && response.statusText == 'OK')
+					) {
 						finally_done = true;
 					}
 				})
@@ -119,6 +122,12 @@ export default function useAddAndEditPostByAdminComposable() {
 							localStorage.removeItem('user_data');
 							store.commit('authentication_module/set_user_data', {});
 							router.push({ name: 'home' });
+						} else if (error.response.data.message == 'Unauthorized!!') {
+							store.commit('notify_module/cheange_response_message', '');
+							let mess = error.response.data.message;
+							store.commit('notify_module/cheange_error_messages_from_server', [
+								mess
+							]);
 						}
 					} else if (
 						error.code == 'ERR_BAD_RESPONSE' ||
@@ -165,7 +174,7 @@ export default function useAddAndEditPostByAdminComposable() {
 								'Your Record is Updated Successfully!'
 							);
 						}
-					} else {
+					} else if (error_messages_from_server.value.length == 0) {
 						store.commit('notify_module/cheange_response_message', '');
 						store.commit('notify_module/cheange_error_messages_from_server', [
 							'Wrong Occurs in Server!'
