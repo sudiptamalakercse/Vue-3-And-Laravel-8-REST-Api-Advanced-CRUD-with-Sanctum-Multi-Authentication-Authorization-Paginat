@@ -12,6 +12,7 @@ import LogInAdminComponent from '../views/pages/LogInAdminComponent.vue';
 import AddPostByAdminComponent from '../views/pages/AddPostByAdminComponent.vue';
 import UpdatePostByAdminComponent from '../views/pages/UpdatePostByAdminComponent.vue';
 import ShowPostsForAdminAndUserComponent from '../views/pages/ShowPostsForAdminAndUserComponent.vue';
+import ShowSinglePostComponent from '../views/pages/ShowSinglePostComponent.vue';
 
 import store from '../store/index';
 
@@ -87,6 +88,13 @@ const routes = [
 		name: 'show_posts_for_admin_and_user',
 		component: ShowPostsForAdminAndUserComponent,
 		meta: { auth: true }
+	},
+	{
+		path: '/show_single_post/:post_id',
+		name: 'show_single_post',
+		component: ShowSinglePostComponent,
+		meta: { auth: true },
+		props: true
 	},
 	{
 		path: '/:pathMatch(.*)*',

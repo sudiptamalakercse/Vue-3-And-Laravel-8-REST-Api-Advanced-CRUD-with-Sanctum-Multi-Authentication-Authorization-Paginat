@@ -66,6 +66,7 @@
 								<td class="text-center">
 									<span
 										style="cursor: pointer"
+										@click="onShowSingleRecord(post.id)"
 										:class="{
 											disable_btn: is_btn_deactive,
 											badge: true,
@@ -229,6 +230,12 @@ export default {
 				params: { post_id: id_for_update }
 			});
 		};
+		const onShowSingleRecord = id_for_show_single_record => {
+			router.push({
+				name: 'show_single_post',
+				params: { post_id: id_for_show_single_record }
+			});
+		};
 		setTimeout(() => {
 			if (recent_page_value.value != 1) {
 				onShowPostList(recent_page_value.value);
@@ -261,7 +268,8 @@ export default {
 			all_select,
 			ids_for_delete,
 			onDeleteSingleRecord,
-			onEditSingleRecord
+			onEditSingleRecord,
+			onShowSingleRecord
 		};
 	}
 };
