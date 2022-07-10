@@ -3,11 +3,13 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import useNotifyGetterComposable from './getters/notify_getter_composable';
 import axios_object_with_base_url_and_token_and_common_headers from '../services/axios_object_base_url_and_token_and_common_headers';
+import usePostGetterComposable from './getters/post_getter_composable';
 
 export default function useAddAndEditPostByAdminComposable() {
 	const store = useStore();
 	const router = useRouter();
 	const { timeout, error_messages_from_server } = useNotifyGetterComposable();
+	const { search_value } = usePostGetterComposable();
 
 	const error_messages = reactive({
 		name: '',
@@ -100,6 +102,9 @@ export default function useAddAndEditPostByAdminComposable() {
 
 			if (payload.action_type == 'add') {
 				request_type_to_server = 'post';
+				if (search_value.value == '') {
+					store.commit('post_module/cheange_recent_page_value', 1);
+				}
 			} else if (payload.action_type == 'update') {
 				request_type_to_server = 'put';
 			}
