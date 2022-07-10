@@ -105,11 +105,8 @@
 <script>
 import useBreadcrumbAndTitle from '../../composables/breadcrumb_and_title_composable';
 import useAddAndEditPostByAdminComposable from '../../composables/add_and_edit_post_by_admin_composable';
-import useNotifyComposable from '../../composables/notify_composable';
 import useIsAuthenticateComposable from '../../composables/getters/is_authenticate_composable';
 import useRetrieveSingleRecordComposable from '../../composables/retrieve_single_record';
-
-import { onMounted } from 'vue';
 
 export default {
 	name: 'UpdatePostByAdminComponent',
@@ -125,7 +122,6 @@ export default {
 			cheange_breadcrumb_links,
 			cheange_breadcrumb_heading_and_title_heading
 		} = useBreadcrumbAndTitle();
-		const { clear_notify_messages } = useNotifyComposable();
 
 		// SignUp related composables
 		const {
@@ -178,10 +174,6 @@ export default {
 			};
 			onAddOrEditPost(payload);
 		};
-
-		onMounted(() => {
-			clear_notify_messages();
-		});
 
 		return {
 			inputed_add_and_edit_post_form_data,

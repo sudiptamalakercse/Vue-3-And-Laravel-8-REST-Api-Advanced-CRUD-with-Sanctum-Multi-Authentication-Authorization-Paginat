@@ -95,10 +95,8 @@
 <script>
 import useBreadcrumbAndTitle from '../../composables/breadcrumb_and_title_composable';
 import useAddAndEditPostByAdminComposable from '../../composables/add_and_edit_post_by_admin_composable';
-import useNotifyComposable from '../../composables/notify_composable';
 import useRetrieveSingleRecordComposable from '../../composables/retrieve_single_record';
 import { useRouter } from 'vue-router';
-import { onMounted } from 'vue';
 
 export default {
 	name: 'ShowSinglePostComponent',
@@ -115,7 +113,6 @@ export default {
 			cheange_breadcrumb_links,
 			cheange_breadcrumb_heading_and_title_heading
 		} = useBreadcrumbAndTitle();
-		const { clear_notify_messages } = useNotifyComposable();
 
 		// SignUp related composables
 		const {
@@ -137,7 +134,6 @@ export default {
 			}
 		]);
 
-		//working...
 		const { retrieve_single_record } = useRetrieveSingleRecordComposable();
 
 		let result = retrieve_single_record(props.post_id);
@@ -156,10 +152,6 @@ export default {
 		const onBackClick = () => {
 			router.push({ name: 'show_posts_for_admin_and_user' });
 		};
-
-		onMounted(() => {
-			clear_notify_messages();
-		});
 
 		return {
 			inputed_add_and_edit_post_form_data,

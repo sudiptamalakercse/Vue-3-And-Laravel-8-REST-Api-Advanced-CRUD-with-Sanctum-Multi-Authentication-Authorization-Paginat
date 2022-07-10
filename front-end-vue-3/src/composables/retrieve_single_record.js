@@ -23,11 +23,12 @@ export default function useRetrieveSingleRecordComposable() {
 	};
 
 	const retrieve_single_record = async id_for_retrieve => {
-		const result = { name: '', city: '', fees: '' };
 		//Storing in database code
 		store.commit('notify_module/cheange_error_messages_from_server', '');
 		store.commit('notify_module/cheange_response_message', '');
 		store.commit('notify_module/cheange_response_message', 'Loading...');
+
+		const result = { name: '', city: '', fees: '' };
 
 		let all_errors = [];
 		let is_server_or_net_on = true;
