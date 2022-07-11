@@ -127,6 +127,11 @@ export default {
 		cheange_breadcrumb_links([
 			{ name: 'Admin Portal', name_of_route: 'home', disabled: false },
 			{
+				name: 'Posts',
+				name_of_route: 'show_posts_for_admin_and_user',
+				disabled: false
+			},
+			{
 				name: 'Single Post',
 				name_of_route: 'show_single_post',
 				params: { post_id: props.post_id },

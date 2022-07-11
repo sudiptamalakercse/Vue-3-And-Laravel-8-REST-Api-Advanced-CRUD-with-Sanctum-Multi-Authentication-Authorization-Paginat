@@ -50,4 +50,11 @@ const set_page_num_after_deleting_record = (
 			});
 	}
 };
-export { set_page_num_after_deleting_record };
+const toUpperCase = phrase => {
+	return phrase
+		.toLowerCase()
+		.split(' ')
+		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+};
+export { set_page_num_after_deleting_record, toUpperCase };
