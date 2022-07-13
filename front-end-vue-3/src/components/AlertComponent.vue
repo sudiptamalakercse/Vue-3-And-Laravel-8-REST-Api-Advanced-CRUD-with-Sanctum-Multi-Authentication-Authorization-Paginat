@@ -1,9 +1,9 @@
 <template>
-	<div class="row">
+	<div class="row" id="alert1">
 		<div class="col">
 			<div
 				v-if="response_message"
-				class="alert alert-primary mb-1 text-center m-0 mb-1 p-1"
+				class="alert alert-success text-center m-0 p-1"
 				role="alert"
 			>
 				{{ response_message }}
@@ -11,7 +11,7 @@
 			<span v-if="error_messages_from_server.length > 0">
 				<div
 					v-for="error_message in error_messages_from_server"
-					class="alert alert-danger text-center m-0 mb-1 p-1"
+					class="alert alert-danger text-center m-0 p-1"
 					role="alert"
 					:key="error_message"
 				>
@@ -39,4 +39,12 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped>
+#alert1 {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 100000;
+}
+</style>

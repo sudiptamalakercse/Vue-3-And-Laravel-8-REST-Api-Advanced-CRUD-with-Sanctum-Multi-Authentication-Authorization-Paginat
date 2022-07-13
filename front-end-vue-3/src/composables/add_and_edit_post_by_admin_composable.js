@@ -3,12 +3,17 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import useNotifyGetterComposable from './getters/notify_getter_composable';
 import axios_object_with_base_url_and_token_and_common_headers from '../services/axios_object_base_url_and_token_and_common_headers';
+import {
+	setTimeout_,
+	cheange_response_message_and_error_messages_from_server
+} from '../services/generel';
 import usePostGetterComposable from './getters/post_getter_composable';
 
 export default function useAddAndEditPostByAdminComposable() {
 	const store = useStore();
 	const router = useRouter();
-	const { timeout, error_messages_from_server } = useNotifyGetterComposable();
+	const { timeout, response_message, error_messages_from_server } =
+		useNotifyGetterComposable();
 	const { search_value } = usePostGetterComposable();
 
 	const error_messages = reactive({
@@ -26,7 +31,6 @@ export default function useAddAndEditPostByAdminComposable() {
 	const validation_errors = ref(false);
 	let from_submmited_with_no_error = false;
 	const is_submit_btn_deactive = ref(true);
-	let finally_done = false;
 
 	function add_and_edit_post_validation(add_and_edit_post_inputed_form_data) {
 		error_messages.name = '';
@@ -64,13 +68,20 @@ export default function useAddAndEditPostByAdminComposable() {
 		}
 	);
 
-	const setTimeout_ = time => {
-		let timeout = setTimeout(() => {
-			store.commit('notify_module/cheange_error_messages_from_server', []);
-			store.commit('notify_module/cheange_response_message', '');
-		}, time);
-		store.commit('notify_module/cheange_timeout', timeout);
-	};
+	watch(response_message, new_response_message => {
+		if (
+			new_response_message == 'Loading...' ||
+			(new_response_message == '' &&
+				inputed_add_and_edit_post_form_data.name == '' &&
+				inputed_add_and_edit_post_form_data.city == '' &&
+				inputed_add_and_edit_post_form_data.fees == '') ||
+			new_response_message != ''
+		) {
+			is_submit_btn_deactive.value = true;
+		} else {
+			is_submit_btn_deactive.value = false;
+		}
+	});
 
 	const remove_inputed_add_and_edit_post_form_data = () => {
 		inputed_add_and_edit_post_form_data.name = '';
@@ -80,17 +91,14 @@ export default function useAddAndEditPostByAdminComposable() {
 	};
 
 	const onAddOrEditPost = async payload => {
+		let finally_done = false;
+
 		if (
 			error_messages.name == '' &&
 			error_messages.city == '' &&
 			error_messages.fees == ''
 		) {
-			is_submit_btn_deactive.value = !is_submit_btn_deactive.value;
-
-			//Storing in database code
-			store.commit('notify_module/cheange_error_messages_from_server', '');
-			store.commit('notify_module/cheange_response_message', '');
-			store.commit('notify_module/cheange_response_message', 'Loading...');
+			cheange_response_message_and_error_messages_from_server('Loading...', []);
 
 			let all_errors = [];
 			let is_server_or_net_on = true;
@@ -128,9 +136,8 @@ export default function useAddAndEditPostByAdminComposable() {
 							store.commit('authentication_module/set_user_data', {});
 							router.push({ name: 'home' });
 						} else if (error.response.data.message == 'Unauthorized!!') {
-							store.commit('notify_module/cheange_response_message', '');
 							let mess = error.response.data.message;
-							store.commit('notify_module/cheange_error_messages_from_server', [
+							cheange_response_message_and_error_messages_from_server('', [
 								mess
 							]);
 						}
@@ -148,40 +155,34 @@ export default function useAddAndEditPostByAdminComposable() {
 				});
 
 			if (is_server_or_net_on == false) {
-				store.commit('notify_module/cheange_response_message', '');
-
-				store.commit('notify_module/cheange_error_messages_from_server', [
+				cheange_response_message_and_error_messages_from_server('', [
 					'You Are Not Connected With Internet or Server is Down!'
 				]);
-				is_submit_btn_deactive.value = !is_submit_btn_deactive.value;
 				setTimeout_(5000);
 			} else {
 				if (all_errors.length > 0) {
-					store.commit('notify_module/cheange_response_message', '');
-					store.commit(
-						'notify_module/cheange_error_messages_from_server',
+					cheange_response_message_and_error_messages_from_server(
+						'',
 						all_errors
 					);
-					is_submit_btn_deactive.value = !is_submit_btn_deactive.value;
 					setTimeout_(5000);
 				} else {
 					remove_inputed_add_and_edit_post_form_data();
 
 					if (finally_done == true) {
 						if (payload.action_type == 'add') {
-							store.commit(
-								'notify_module/cheange_response_message',
-								'Your Record is Created Successfully!'
+							cheange_response_message_and_error_messages_from_server(
+								'Your Record is Created Successfully!',
+								[]
 							);
 						} else if (payload.action_type == 'update') {
-							store.commit(
-								'notify_module/cheange_response_message',
-								'Your Record is Updated Successfully!'
+							cheange_response_message_and_error_messages_from_server(
+								'Your Record is Updated Successfully!',
+								[]
 							);
 						}
 					} else if (error_messages_from_server.value.length == 0) {
-						store.commit('notify_module/cheange_response_message', '');
-						store.commit('notify_module/cheange_error_messages_from_server', [
+						cheange_response_message_and_error_messages_from_server('', [
 							'Wrong Occurs in Server!'
 						]);
 					}

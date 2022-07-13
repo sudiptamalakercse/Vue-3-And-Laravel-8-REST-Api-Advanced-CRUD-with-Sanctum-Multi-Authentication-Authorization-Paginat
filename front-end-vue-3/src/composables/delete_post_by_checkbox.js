@@ -6,6 +6,10 @@ import usePostGetterComposable from './getters/post_getter_composable';
 import useIsAuthenticateComposable from '../composables/getters/is_authenticate_composable';
 import axios_object_with_base_url_and_token_and_common_headers from '../services/axios_object_base_url_and_token_and_common_headers';
 import { set_page_num_after_deleting_record } from '../services/generel';
+import {
+	setTimeout_,
+	cheange_response_message_and_error_messages_from_server
+} from '../services/generel';
 
 export default function useDeletePostByCheckboxComposable(
 	post_list,
@@ -13,30 +17,19 @@ export default function useDeletePostByCheckboxComposable(
 ) {
 	const store = useStore();
 	const router = useRouter();
-	const { timeout, error_messages_from_server } = useNotifyGetterComposable();
+	const { timeout, error_messages_from_server, response_message } =
+		useNotifyGetterComposable();
 	const { recent_page_value, search_value } = usePostGetterComposable();
 
 	const { user_data } = useIsAuthenticateComposable();
 	const ids_for_delete = ref([]);
 	const all_select = ref(false);
 	const is_btn_deactive = ref(true);
-	let finally_done = false;
-
-	const setTimeout_ = time => {
-		let timeout = setTimeout(() => {
-			store.commit('notify_module/cheange_error_messages_from_server', []);
-			store.commit('notify_module/cheange_response_message', '');
-		}, time);
-		store.commit('notify_module/cheange_timeout', timeout);
-	};
 
 	const delete_selected_posts = async () => {
-		is_btn_deactive.value = !is_btn_deactive.value;
+		let finally_done = false;
 
-		//Storing in database code
-		store.commit('notify_module/cheange_error_messages_from_server', '');
-		store.commit('notify_module/cheange_response_message', '');
-		store.commit('notify_module/cheange_response_message', 'Loading...');
+		cheange_response_message_and_error_messages_from_server('Loading...', []);
 
 		let all_errors = [];
 		let is_server_or_net_on = true;
@@ -66,11 +59,8 @@ export default function useDeletePostByCheckboxComposable(
 						store.commit('authentication_module/set_user_data', {});
 						router.push({ name: 'home' });
 					} else if (error.response.data.message == 'Unauthorized!!') {
-						store.commit('notify_module/cheange_response_message', '');
 						let mess = error.response.data.message;
-						store.commit('notify_module/cheange_error_messages_from_server', [
-							mess
-						]);
+						cheange_response_message_and_error_messages_from_server('', [mess]);
 						ids_for_delete.value = [];
 						all_select.value = false;
 					}
@@ -88,31 +78,22 @@ export default function useDeletePostByCheckboxComposable(
 			});
 
 		if (is_server_or_net_on == false) {
-			store.commit('notify_module/cheange_response_message', '');
-
-			store.commit('notify_module/cheange_error_messages_from_server', [
+			cheange_response_message_and_error_messages_from_server('', [
 				'You Are Not Connected With Internet or Server is Down!'
 			]);
-			is_btn_deactive.value = !is_btn_deactive.value;
 			setTimeout_(5000);
 		} else {
 			if (all_errors.length > 0) {
-				store.commit('notify_module/cheange_response_message', '');
-				store.commit(
-					'notify_module/cheange_error_messages_from_server',
-					all_errors
-				);
-				is_btn_deactive.value = !is_btn_deactive.value;
+				cheange_response_message_and_error_messages_from_server('', all_errors);
 				setTimeout_(5000);
 			} else {
 				if (finally_done == true) {
-					store.commit(
-						'notify_module/cheange_response_message',
-						'Selected Records are Deleted Successfully!'
+					cheange_response_message_and_error_messages_from_server(
+						'Selected Records are Deleted Successfully!',
+						[]
 					);
 				} else if (error_messages_from_server.value.length == 0) {
-					store.commit('notify_module/cheange_response_message', '');
-					store.commit('notify_module/cheange_error_messages_from_server', [
+					cheange_response_message_and_error_messages_from_server('', [
 						'Wrong Occurs in Server!'
 					]);
 				}
@@ -141,6 +122,18 @@ export default function useDeletePostByCheckboxComposable(
 			is_btn_deactive.value = false;
 		} else {
 			is_btn_deactive.value = true;
+		}
+	});
+
+	watch(response_message, new_response_message => {
+		if (
+			new_response_message == 'Loading...' ||
+			(new_response_message == '' && ids_for_delete.value.length == 0) ||
+			new_response_message != ''
+		) {
+			is_btn_deactive.value = true;
+		} else {
+			is_btn_deactive.value = false;
 		}
 	});
 

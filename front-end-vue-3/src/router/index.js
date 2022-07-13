@@ -117,7 +117,7 @@ router.beforeEach((to, from, next) => {
 	}
 	//console.log(is_admin_authenticate);
 	if ('auth' in to.meta && to.meta.auth && !is_admin_authenticate) {
-		next('/sign_up_admin');
+		next('/');
 	} else if ('auth' in to.meta && !to.meta.auth && is_admin_authenticate) {
 		next('/');
 	} else {

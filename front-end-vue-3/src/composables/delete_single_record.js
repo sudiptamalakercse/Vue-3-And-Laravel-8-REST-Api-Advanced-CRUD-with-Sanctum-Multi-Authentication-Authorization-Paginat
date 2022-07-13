@@ -6,6 +6,10 @@ import usePostGetterComposable from './getters/post_getter_composable';
 import useIsAuthenticateComposable from './getters/is_authenticate_composable';
 import axios_object_with_base_url_and_token_and_common_headers from '../services/axios_object_base_url_and_token_and_common_headers';
 import { set_page_num_after_deleting_record } from '../services/generel';
+import {
+	setTimeout_,
+	cheange_response_message_and_error_messages_from_server
+} from '../services/generel';
 
 export default function useDeleteSingleRecordComposable(onShowPostList) {
 	const store = useStore();
@@ -15,21 +19,9 @@ export default function useDeleteSingleRecordComposable(onShowPostList) {
 
 	const { user_data } = useIsAuthenticateComposable();
 
-	let finally_done = false;
-
-	const setTimeout_ = time => {
-		let timeout = setTimeout(() => {
-			store.commit('notify_module/cheange_error_messages_from_server', []);
-			store.commit('notify_module/cheange_response_message', '');
-		}, time);
-		store.commit('notify_module/cheange_timeout', timeout);
-	};
-
 	const delete_single_record = async id_for_delete => {
-		//Storing in database code
-		store.commit('notify_module/cheange_error_messages_from_server', '');
-		store.commit('notify_module/cheange_response_message', '');
-		store.commit('notify_module/cheange_response_message', 'Loading...');
+		let finally_done = false;
+		cheange_response_message_and_error_messages_from_server('Loading...', []);
 
 		let all_errors = [];
 		let is_server_or_net_on = true;
@@ -59,11 +51,8 @@ export default function useDeleteSingleRecordComposable(onShowPostList) {
 						store.commit('authentication_module/set_user_data', {});
 						router.push({ name: 'home' });
 					} else if (error.response.data.message == 'Unauthorized!!') {
-						store.commit('notify_module/cheange_response_message', '');
 						let mess = error.response.data.message;
-						store.commit('notify_module/cheange_error_messages_from_server', [
-							mess
-						]);
+						cheange_response_message_and_error_messages_from_server('', [mess]);
 					}
 				} else if (
 					error.code == 'ERR_BAD_RESPONSE' ||
@@ -79,29 +68,23 @@ export default function useDeleteSingleRecordComposable(onShowPostList) {
 			});
 
 		if (is_server_or_net_on == false) {
-			store.commit('notify_module/cheange_response_message', '');
-
-			store.commit('notify_module/cheange_error_messages_from_server', [
+			cheange_response_message_and_error_messages_from_server('', [
 				'You Are Not Connected With Internet or Server is Down!'
 			]);
+
 			setTimeout_(5000);
 		} else {
 			if (all_errors.length > 0) {
-				store.commit('notify_module/cheange_response_message', '');
-				store.commit(
-					'notify_module/cheange_error_messages_from_server',
-					all_errors
-				);
+				cheange_response_message_and_error_messages_from_server('', all_errors);
 				setTimeout_(5000);
 			} else {
 				if (finally_done == true) {
-					store.commit(
-						'notify_module/cheange_response_message',
-						'Record is Deleted Successfully!'
+					cheange_response_message_and_error_messages_from_server(
+						'Record is Deleted Successfully!',
+						[]
 					);
 				} else if (error_messages_from_server.value.length == 0) {
-					store.commit('notify_module/cheange_response_message', '');
-					store.commit('notify_module/cheange_error_messages_from_server', [
+					cheange_response_message_and_error_messages_from_server('', [
 						'Wrong Occurs in Server!'
 					]);
 				}

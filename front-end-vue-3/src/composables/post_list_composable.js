@@ -5,6 +5,10 @@ import useNotifyGetterComposable from './getters/notify_getter_composable';
 import usePostGetterComposable from './getters/post_getter_composable';
 import useIsAuthenticateComposable from '../composables/getters/is_authenticate_composable';
 import axios_object_with_base_url_and_token_and_common_headers from '../services/axios_object_base_url_and_token_and_common_headers';
+import {
+	setTimeout_,
+	cheange_response_message_and_error_messages_from_server
+} from '../services/generel';
 import useDeletePostByCheckboxComposable from '../composables/delete_post_by_checkbox';
 import useDeleteSingleRecordComposable from '../composables/delete_single_record';
 
@@ -19,22 +23,10 @@ export default function usePostListComposable() {
 	const laravel_data = ref({});
 
 	const is_btn_deactive = ref(true);
-	let finally_done = false;
-
-	const setTimeout_ = time => {
-		let timeout = setTimeout(() => {
-			store.commit('notify_module/cheange_error_messages_from_server', []);
-			store.commit('notify_module/cheange_response_message', '');
-		}, time);
-		store.commit('notify_module/cheange_timeout', timeout);
-	};
 
 	const onShowPostList = async (page = 1) => {
-		//Storing in database code
-		store.commit('notify_module/cheange_error_messages_from_server', '');
-		store.commit('notify_module/cheange_response_message', '');
-		store.commit('notify_module/cheange_response_message', 'Loading...');
-
+		let finally_done = false;
+		cheange_response_message_and_error_messages_from_server('Loading...', []);
 		let all_errors = [];
 		let is_server_or_net_on = true;
 
@@ -86,32 +78,24 @@ export default function usePostListComposable() {
 			});
 
 		if (is_server_or_net_on == false) {
-			store.commit('notify_module/cheange_response_message', '');
-
-			store.commit('notify_module/cheange_error_messages_from_server', [
+			cheange_response_message_and_error_messages_from_server('', [
 				'You Are Not Connected With Internet or Server is Down!'
 			]);
-
 			setTimeout_(5000);
 		} else {
 			if (all_errors.length > 0) {
-				store.commit('notify_module/cheange_response_message', '');
-				store.commit(
-					'notify_module/cheange_error_messages_from_server',
-					all_errors
-				);
+				cheange_response_message_and_error_messages_from_server('', all_errors);
 				setTimeout_(5000);
 			} else {
 				if (finally_done == true) {
 					if (post_list.value.length > 0) {
-						store.commit(
-							'notify_module/cheange_response_message',
-							'Records are Loaded Successfully!'
+						cheange_response_message_and_error_messages_from_server(
+							'Records are Loaded Successfully!',
+							[]
 						);
 					}
 				} else {
-					store.commit('notify_module/cheange_response_message', '');
-					store.commit('notify_module/cheange_error_messages_from_server', [
+					cheange_response_message_and_error_messages_from_server('', [
 						'Wrong Occurs in Server!'
 					]);
 				}

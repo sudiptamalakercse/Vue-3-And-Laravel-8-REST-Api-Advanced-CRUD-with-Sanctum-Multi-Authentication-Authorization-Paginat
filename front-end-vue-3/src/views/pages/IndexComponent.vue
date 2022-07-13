@@ -23,7 +23,7 @@
 import useBreadcrumbAndTitle from '../../composables/breadcrumb_and_title_composable';
 import useIsAuthenticate from '../../composables/getters/is_authenticate_composable';
 import useNotifyGetterComposable from '../../composables/getters/notify_getter_composable';
-
+import { cheange_response_message_and_error_messages_from_server } from '../../services/generel';
 import { onMounted, onUnmounted, onUpdated } from 'vue';
 import { useStore } from 'vuex';
 
@@ -60,8 +60,7 @@ export default {
 
 		onMounted(() => {
 			let timeout = setTimeout(() => {
-				store.commit('notify_module/cheange_error_messages_from_server', []);
-				store.commit('notify_module/cheange_response_message', '');
+				cheange_response_message_and_error_messages_from_server('', []);
 			}, 5000);
 			store.commit('notify_module/cheange_timeout', timeout);
 		});

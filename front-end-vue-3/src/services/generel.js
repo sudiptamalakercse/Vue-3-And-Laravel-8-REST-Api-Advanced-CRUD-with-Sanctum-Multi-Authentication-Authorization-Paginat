@@ -1,3 +1,5 @@
+import store from '../store/index';
+
 const set_page_num_after_deleting_record = (
 	response,
 	search_value,
@@ -57,4 +59,30 @@ const toUpperCase = phrase => {
 		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(' ');
 };
-export { set_page_num_after_deleting_record, toUpperCase };
+
+const setTimeout_ = time => {
+	let timeout = setTimeout(() => {
+		store.commit('notify_module/cheange_error_messages_from_server', []);
+		store.commit('notify_module/cheange_response_message', '');
+	}, time);
+	store.commit('notify_module/cheange_timeout', timeout);
+};
+
+const cheange_response_message_and_error_messages_from_server = (
+	response_message = '',
+	error_messages_from_server = []
+) => {
+	store.commit('notify_module/cheange_response_message', response_message);
+
+	store.commit(
+		'notify_module/cheange_error_messages_from_server',
+		error_messages_from_server
+	);
+};
+
+export {
+	set_page_num_after_deleting_record,
+	toUpperCase,
+	setTimeout_,
+	cheange_response_message_and_error_messages_from_server
+};

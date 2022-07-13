@@ -2,11 +2,15 @@ import { reactive, ref, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import useNotifyGetterComposable from './getters/notify_getter_composable';
+import {
+	setTimeout_,
+	cheange_response_message_and_error_messages_from_server
+} from '../services/generel';
 
 export default function useSignUpComposable() {
 	const store = useStore();
 	const router = useRouter();
-	const { timeout } = useNotifyGetterComposable();
+	const { timeout, response_message } = useNotifyGetterComposable();
 
 	const error_messages = reactive({
 		name: '',
@@ -70,13 +74,21 @@ export default function useSignUpComposable() {
 		from_submmited_with_no_error = false;
 	});
 
-	const setTimeout_ = time => {
-		let timeout = setTimeout(() => {
-			store.commit('notify_module/cheange_error_messages_from_server', []);
-			store.commit('notify_module/cheange_response_message', '');
-		}, time);
-		store.commit('notify_module/cheange_timeout', timeout);
-	};
+	watch(response_message, new_response_message => {
+		if (
+			new_response_message == 'Loading...' ||
+			(new_response_message == '' &&
+				inputed_sign_up_form_data.name == '' &&
+				inputed_sign_up_form_data.email == '' &&
+				inputed_sign_up_form_data.password == '' &&
+				inputed_sign_up_form_data.password_confirmation == '') ||
+			new_response_message != ''
+		) {
+			is_submit_btn_deactive.value = true;
+		} else {
+			is_submit_btn_deactive.value = false;
+		}
+	});
 
 	const remove_inputed_sign_up_form_data = () => {
 		inputed_sign_up_form_data.name = '';
@@ -92,12 +104,7 @@ export default function useSignUpComposable() {
 			error_messages.email == '' &&
 			error_messages.password == ''
 		) {
-			is_submit_btn_deactive.value = !is_submit_btn_deactive.value;
-
-			//Storing in database code
-			store.commit('notify_module/cheange_error_messages_from_server', '');
-			store.commit('notify_module/cheange_response_message', '');
-			store.commit('notify_module/cheange_response_message', 'Loading...');
+			cheange_response_message_and_error_messages_from_server('Loading...', []);
 
 			let all_errors = [];
 			let is_server_or_net_on = true;
@@ -115,28 +122,22 @@ export default function useSignUpComposable() {
 				}
 			}
 			if (is_server_or_net_on == false) {
-				store.commit('notify_module/cheange_response_message', '');
-
-				store.commit('notify_module/cheange_error_messages_from_server', [
+				cheange_response_message_and_error_messages_from_server('', [
 					'You Are Not Connected With Internet or Server is Down!'
 				]);
-				is_submit_btn_deactive.value = !is_submit_btn_deactive.value;
 				setTimeout_(5000);
 			} else {
 				if (all_errors.length > 0) {
-					store.commit('notify_module/cheange_response_message', '');
-					store.commit(
-						'notify_module/cheange_error_messages_from_server',
+					cheange_response_message_and_error_messages_from_server(
+						'',
 						all_errors
 					);
-					is_submit_btn_deactive.value = !is_submit_btn_deactive.value;
 					setTimeout_(5000);
 				} else {
 					remove_inputed_sign_up_form_data();
-
-					store.commit(
-						'notify_module/cheange_response_message',
-						'Your Account is Successfully Created!'
+					cheange_response_message_and_error_messages_from_server(
+						'Your Account is Successfully Created!',
+						[]
 					);
 
 					setTimeout_(5000);
