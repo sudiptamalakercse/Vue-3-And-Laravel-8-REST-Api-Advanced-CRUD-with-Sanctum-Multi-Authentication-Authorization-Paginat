@@ -38,30 +38,33 @@ export default {
 			cheange_breadcrumb_heading_and_title_heading
 		} = useBreadcrumbAndTitle();
 
-		const { is_admin_authenticate } = useIsAuthenticate();
+		const { is_admin_authenticate, is_user_authenticate } = useIsAuthenticate();
 		const { clear_notify_messages } = useNotifyComposable();
 
 		cheange_breadcrumb_heading_and_title_heading('Error 403');
 
-		if (is_admin_authenticate.value == true) {
-			cheange_breadcrumb_links([
-				{ name: 'Admin Portal', name_of_route: 'home', disabled: false },
-				{
-					name: 'Error 403',
-					name_of_route: 'error403component',
-					disabled: true
-				}
-			]);
+		let user_type = null;
+
+		if (is_admin_authenticate.value) {
+			user_type = 'Admin';
+		} else if (is_user_authenticate.value) {
+			user_type = 'User';
 		} else {
-			cheange_breadcrumb_links([
-				{ name: 'Admin & User Portal', name_of_route: 'home', disabled: false },
-				{
-					name: 'Error 403',
-					name_of_route: 'error403component',
-					disabled: true
-				}
-			]);
+			user_type = 'Admin & User';
 		}
+
+		cheange_breadcrumb_links([
+			{
+				name: `${user_type} Portal`,
+				name_of_route: 'home',
+				disabled: false
+			},
+			{
+				name: 'Error 403',
+				name_of_route: 'error403component',
+				disabled: true
+			}
+		]);
 
 		onMounted(() => {
 			clear_notify_messages();

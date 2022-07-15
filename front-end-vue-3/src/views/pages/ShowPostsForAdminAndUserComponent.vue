@@ -176,7 +176,7 @@ export default {
 
 		const { clear_notify_messages } = useNotifyComposable();
 
-		const { is_admin_authenticate } = useIsAuthenticate();
+		const { is_admin_authenticate, is_user_authenticate } = useIsAuthenticate();
 
 		const {
 			onShowPostList,
@@ -201,9 +201,23 @@ export default {
 		function set_breadcrumb_heading_and_title_heading_and_breadcrumb_links() {
 			cheange_breadcrumb_heading_and_title_heading('Posts');
 
-			if (is_admin_authenticate.value == true) {
+			if (
+				is_admin_authenticate.value == true ||
+				is_user_authenticate.value == true
+			) {
+				let user_type = null;
+				if (is_admin_authenticate.value) {
+					user_type = 'Admin';
+				} else if (is_user_authenticate.value) {
+					user_type = 'User';
+				}
+
 				cheange_breadcrumb_links([
-					{ name: 'Admin Portal', name_of_route: 'home', disabled: false },
+					{
+						name: `${user_type} Portal`,
+						name_of_route: 'home',
+						disabled: false
+					},
 					{
 						name: 'Posts',
 						name_of_route: 'show_posts_for_admin_and_user',

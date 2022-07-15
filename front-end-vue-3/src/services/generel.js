@@ -80,9 +80,39 @@ const cheange_response_message_and_error_messages_from_server = (
 	);
 };
 
+const is_authenticate = user_type => {
+	let user_data = store.state.authentication_module.user_data;
+	if (user_data.user_type == user_type && user_data.token != '') {
+		return true;
+	} else {
+		return false;
+	}
+};
+
+const log_out_ = (
+	is_admin_authenticate,
+	is_user_authenticate,
+	user_data,
+	log_out
+) => {
+	let user_type = null;
+	if (is_admin_authenticate.value) {
+		user_type = 'admin';
+	} else if (is_user_authenticate.value) {
+		user_type = 'user';
+	}
+	log_out({
+		request_link: `logout/${user_type}`,
+		user_type: user_type,
+		token: user_data.value.token
+	});
+};
+
 export {
 	set_page_num_after_deleting_record,
 	toUpperCase,
 	setTimeout_,
-	cheange_response_message_and_error_messages_from_server
+	cheange_response_message_and_error_messages_from_server,
+	is_authenticate,
+	log_out_
 };

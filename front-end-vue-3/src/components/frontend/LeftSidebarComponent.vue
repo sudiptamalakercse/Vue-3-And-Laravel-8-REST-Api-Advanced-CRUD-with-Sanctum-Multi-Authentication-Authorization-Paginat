@@ -7,14 +7,24 @@
 				<ul id="sidebarnav" class="pt-4">
 					<li class="sidebar-item d-md-none">
 						<!-- <div class="sidebar-link text-center">User</div> -->
-						<a ref="admin_icon" href="javascript:void(0)" aria-expanded="false"
-							><i v-if="is_admin_authenticate" class="mdi mdi-account"></i>
-							<span v-if="is_admin_authenticate" class="hide-menu"
+						<a
+							ref="admin_or_user_icon"
+							href="javascript:void(0)"
+							aria-expanded="false"
+							><i
+								v-if="is_admin_authenticate"
+								class="mdi mdi-account-circle"
+							></i>
+							<i v-if="is_user_authenticate" class="mdi mdi-account"></i>
+
+							<span
+								v-if="is_admin_authenticate || is_user_authenticate"
+								class="hide-menu"
 								>{{ user_data.name }} ({{ user_data.email }})</span
 							></a
 						>
 						<ul
-							v-if="is_admin_authenticate"
+							v-if="is_admin_authenticate || is_user_authenticate"
 							aria-expanded="false"
 							class="collapse first-level"
 						>
@@ -35,17 +45,22 @@
 					</li>
 					<li class="sidebar-item d-md-none">
 						<a ref="posts_icon" href="javascript:void(0)" aria-expanded="false"
-							><i v-if="is_admin_authenticate" class="mdi mdi-receipt"></i
-							><span v-if="is_admin_authenticate" class="hide-menu"
+							><i
+								v-if="is_admin_authenticate || is_user_authenticate"
+								class="mdi mdi-receipt"
+							></i
+							><span
+								v-if="is_admin_authenticate || is_user_authenticate"
+								class="hide-menu"
 								>Posts</span
 							></a
 						>
 						<ul
-							v-if="is_admin_authenticate"
+							v-if="is_admin_authenticate || is_user_authenticate"
 							aria-expanded="false"
 							class="collapse first-level"
 						>
-							<li class="sidebar-item">
+							<li v-if="is_admin_authenticate" class="sidebar-item">
 								<router-link
 									:to="{ name: 'add_post_by_admin' }"
 									class="sidebar-link"
@@ -53,7 +68,10 @@
 									><span class="hide-menu"> Add Post </span>
 								</router-link>
 							</li>
-							<li class="sidebar-item">
+							<li
+								v-if="is_admin_authenticate || is_user_authenticate"
+								class="sidebar-item"
+							>
 								<router-link
 									:to="{ name: 'show_posts_for_admin_and_user' }"
 									class="sidebar-link"
@@ -68,13 +86,18 @@
 							ref="sign_up_icon"
 							href="javascript:void(0)"
 							aria-expanded="false"
-							><i v-if="!is_admin_authenticate" class="mdi mdi-account-plus"></i
-							><span v-if="!is_admin_authenticate" class="hide-menu"
+							><i
+								v-if="!is_admin_authenticate && !is_user_authenticate"
+								class="mdi mdi-account-plus"
+							></i
+							><span
+								v-if="!is_admin_authenticate && !is_user_authenticate"
+								class="hide-menu"
 								>Sign Up</span
 							></a
 						>
 						<ul
-							v-if="!is_admin_authenticate"
+							v-if="!is_admin_authenticate && !is_user_authenticate"
 							aria-expanded="false"
 							class="collapse first-level"
 						>
@@ -97,15 +120,17 @@
 					<li class="sidebar-item">
 						<a ref="log_in_icon" href="javascript:void(0)" aria-expanded="false"
 							><i
-								v-if="!is_admin_authenticate"
+								v-if="!is_admin_authenticate && !is_user_authenticate"
 								class="mdi mdi-login-variant"
 							></i
-							><span v-if="!is_admin_authenticate" class="hide-menu"
+							><span
+								v-if="!is_admin_authenticate && !is_user_authenticate"
+								class="hide-menu"
 								>Log In</span
 							></a
 						>
 						<ul
-							v-if="!is_admin_authenticate"
+							v-if="!is_admin_authenticate && !is_user_authenticate"
 							aria-expanded="false"
 							class="collapse first-level"
 						>
@@ -141,12 +166,31 @@
 							><span class="hide-menu">Full Width</span>
 						</router-link>
 					</li>
+					<li v-if="is_user_authenticate" class="sidebar-item">
+						<router-link
+							:to="{ name: 'formbasic' }"
+							class="sidebar-link waves-effect waves-dark sidebar-link"
+							aria-expanded="false"
+							><i class="mdi mdi-note-outline"></i
+							><span class="hide-menu">Form Basic</span>
+						</router-link>
+					</li>
+					<li v-if="is_user_authenticate" class="sidebar-item">
+						<router-link
+							:to="{ name: 'formwizard' }"
+							class="sidebar-link waves-effect waves-dark sidebar-link"
+							aria-expanded="false"
+							><i class="mdi mdi-note-plus"></i
+							><span class="hide-menu">Form Wizard</span>
+						</router-link>
+					</li>
 					<li class="sidebar-item p-3">
 						<a
-							href="https://www.google.com/"
+							href="https://www.facebook.com/sudipta.malaker.1"
 							target="_blank"
-							class="w-100 btn btn-danger d-flex align-items-center text-white"
-							><i class="mdi mdi-google font-20 me-2"></i>Goggle</a
+							class="w-100 btn btn-primary d-flex align-items-center text-white"
+							><i class="mdi mdi-facebook-box font-20 me-2"></i>Facebook of
+							Developer</a
 						>
 					</li>
 				</ul>
@@ -161,12 +205,15 @@
 import useIsAuthenticate from '../../composables/getters/is_authenticate_composable';
 import { ref, onUpdated, onMounted } from 'vue';
 import useLogOutComposable from '../../composables/log_out_composable';
+import { log_out_ } from '../../services/generel';
 
 export default {
 	name: 'LeftSidebarComponent',
 	setup() {
-		const { is_admin_authenticate, user_data } = useIsAuthenticate();
-		const admin_icon = ref(null);
+		const { is_admin_authenticate, is_user_authenticate, user_data } =
+			useIsAuthenticate();
+
+		const admin_or_user_icon = ref(null);
 		const posts_icon = ref(null);
 		const sign_up_icon = ref(null);
 		const log_in_icon = ref(null);
@@ -174,28 +221,24 @@ export default {
 		const { log_out, is_btn_deactive } = useLogOutComposable();
 
 		const onLogOut = () => {
-			log_out({
-				request_link: 'logout/admin',
-				user_type: 'admin',
-				token: user_data.value.token
-			});
+			log_out_(is_admin_authenticate, is_user_authenticate, user_data, log_out);
 		};
-		const add_class_to_admin_icon = () => {
-			if (is_admin_authenticate.value) {
-				admin_icon.value.classList.add('sidebar-link');
-				admin_icon.value.classList.add('has-arrow');
-				admin_icon.value.classList.add('waves-effect');
-				admin_icon.value.classList.add('waves-dark');
+		const add_class_to_admin_or_user_icon = () => {
+			if (is_admin_authenticate.value || is_user_authenticate.value) {
+				admin_or_user_icon.value.classList.add('sidebar-link');
+				admin_or_user_icon.value.classList.add('has-arrow');
+				admin_or_user_icon.value.classList.add('waves-effect');
+				admin_or_user_icon.value.classList.add('waves-dark');
 			} else {
-				admin_icon.value.classList.remove('sidebar-link');
-				admin_icon.value.classList.remove('has-arrow');
-				admin_icon.value.classList.remove('waves-effect');
-				admin_icon.value.classList.remove('waves-dark');
+				admin_or_user_icon.value.classList.remove('sidebar-link');
+				admin_or_user_icon.value.classList.remove('has-arrow');
+				admin_or_user_icon.value.classList.remove('waves-effect');
+				admin_or_user_icon.value.classList.remove('waves-dark');
 			}
 		};
 
 		const add_class_to_posts_icon = () => {
-			if (is_admin_authenticate.value) {
+			if (is_admin_authenticate.value || is_user_authenticate.value) {
 				posts_icon.value.classList.add('sidebar-link');
 				posts_icon.value.classList.add('has-arrow');
 				posts_icon.value.classList.add('waves-effect');
@@ -209,7 +252,7 @@ export default {
 		};
 
 		const add_class_to_sign_up_icon = () => {
-			if (!is_admin_authenticate.value) {
+			if (!is_admin_authenticate.value && !is_user_authenticate.value) {
 				sign_up_icon.value.classList.add('sidebar-link');
 				sign_up_icon.value.classList.add('has-arrow');
 				sign_up_icon.value.classList.add('waves-effect');
@@ -223,7 +266,7 @@ export default {
 		};
 
 		const add_class_to_log_in_icon = () => {
-			if (!is_admin_authenticate.value) {
+			if (!is_admin_authenticate.value && !is_user_authenticate.value) {
 				log_in_icon.value.classList.add('sidebar-link');
 				log_in_icon.value.classList.add('has-arrow');
 				log_in_icon.value.classList.add('waves-effect');
@@ -237,14 +280,14 @@ export default {
 		};
 
 		onUpdated(() => {
-			add_class_to_admin_icon();
+			add_class_to_admin_or_user_icon();
 			add_class_to_posts_icon();
 			add_class_to_sign_up_icon();
 			add_class_to_log_in_icon();
 		});
 
 		onMounted(() => {
-			add_class_to_admin_icon();
+			add_class_to_admin_or_user_icon();
 			add_class_to_posts_icon();
 			add_class_to_sign_up_icon();
 			add_class_to_log_in_icon();
@@ -252,8 +295,9 @@ export default {
 
 		return {
 			is_admin_authenticate,
+			is_user_authenticate,
 			user_data,
-			admin_icon,
+			admin_or_user_icon,
 			posts_icon,
 			onLogOut,
 			sign_up_icon,

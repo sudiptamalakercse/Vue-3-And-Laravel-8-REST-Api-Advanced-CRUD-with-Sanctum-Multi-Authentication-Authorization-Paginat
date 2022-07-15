@@ -31,6 +31,13 @@
 						<!-- dark text -->
 						Admin Portal
 					</span>
+					<span
+						v-else-if="is_user_authenticate"
+						class="logo-text ms-2 light-logo text-danger mt-2"
+					>
+						<!-- dark text -->
+						User Portal
+					</span>
 					<span v-else class="logo-text ms-2 light-logo text-danger mt-2">
 						<!-- dark text -->
 						Admin & User Portal
@@ -79,7 +86,10 @@
 					<!-- ============================================================== -->
 					<!-- create new -->
 					<!-- ============================================================== -->
-					<li v-if="is_admin_authenticate" class="nav-item dropdown">
+					<li
+						v-if="is_admin_authenticate || is_user_authenticate"
+						class="nav-item dropdown"
+					>
 						<a
 							class="nav-link dropdown-toggle"
 							href="#"
@@ -104,7 +114,7 @@
 								>
 							</li>
 							<li><hr class="dropdown-divider" /></li>
-							<li v-if="is_admin_authenticate">
+							<li v-if="is_admin_authenticate || is_user_authenticate">
 								<router-link
 									:to="{ name: 'show_posts_for_admin_and_user' }"
 									class="dropdown-item"
@@ -119,7 +129,10 @@
 					<!-- Search -->
 					<!-- ============================================================== -->
 				</ul>
-				<ul v-if="is_admin_authenticate" class="navbar-nav float-start me-auto">
+				<ul
+					v-if="is_admin_authenticate || is_user_authenticate"
+					class="navbar-nav float-start me-auto"
+				>
 					<li class="nav-item d-flex align-items-center">
 						<input
 							style="width: 400px"
@@ -134,7 +147,10 @@
 				<!-- ============================================================== -->
 				<!-- Right side toggle and nav items -->
 				<!-- ============================================================== -->
-				<ul v-if="is_admin_authenticate" class="navbar-nav float-end">
+				<ul
+					v-if="is_admin_authenticate || is_user_authenticate"
+					class="navbar-nav float-end"
+				>
 					<li class="nav-item dropdown">
 						<a
 							class="nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic"
@@ -180,6 +196,7 @@
 import useIsAuthenticateComposable from '../../composables/getters/is_authenticate_composable';
 import useLogOutComposable from '../../composables/log_out_composable';
 import usePostListComposable from '../../composables/post_list_composable';
+import { log_out_ } from '../../services/generel';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
@@ -188,18 +205,15 @@ export default {
 	setup() {
 		const store = useStore();
 		const router = useRouter();
-		const { is_admin_authenticate, user_data } = useIsAuthenticateComposable();
+		const { is_admin_authenticate, is_user_authenticate, user_data } =
+			useIsAuthenticateComposable();
 
 		const { log_out, is_btn_deactive } = useLogOutComposable();
 
 		const { search_value } = usePostListComposable();
 
 		const onLogOut = () => {
-			log_out({
-				request_link: 'logout/admin',
-				user_type: 'admin',
-				token: user_data.value.token
-			});
+			log_out_(is_admin_authenticate, is_user_authenticate, user_data, log_out);
 		};
 
 		const onChangeSearchValue = event => {
@@ -210,6 +224,7 @@ export default {
 
 		return {
 			is_admin_authenticate,
+			is_user_authenticate,
 			user_data,
 			onLogOut,
 			is_btn_deactive,

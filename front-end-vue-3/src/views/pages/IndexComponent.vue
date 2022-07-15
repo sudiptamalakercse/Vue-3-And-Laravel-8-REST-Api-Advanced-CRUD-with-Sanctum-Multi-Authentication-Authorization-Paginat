@@ -11,6 +11,9 @@
 				<h3 v-if="is_admin_authenticate" class="error-subtitle mt-5 mb-5">
 					Welcome to Admin Portal
 				</h3>
+				<h3 v-else-if="is_user_authenticate" class="error-subtitle mt-5 mb-5">
+					Welcome to User Portal
+				</h3>
 				<h3 v-else class="error-subtitle mt-5 mb-5">
 					Welcome to Admin & User Portal
 				</h3>
@@ -38,22 +41,23 @@ export default {
 			cheange_breadcrumb_heading_and_title_heading
 		} = useBreadcrumbAndTitle();
 
-		const { is_admin_authenticate } = useIsAuthenticate();
+		const { is_admin_authenticate, is_user_authenticate } = useIsAuthenticate();
 
 		function set_breadcrumb_heading_and_title_heading_and_breadcrumb_links() {
+			let value = null;
+
 			if (is_admin_authenticate.value == true) {
-				cheange_breadcrumb_heading_and_title_heading('Admin Portal');
-
-				cheange_breadcrumb_links([
-					{ name: 'Admin Portal', name_of_route: 'home', disabled: true }
-				]);
+				value = 'Admin';
+			} else if (is_user_authenticate.value == true) {
+				value = 'User';
 			} else {
-				cheange_breadcrumb_heading_and_title_heading('Admin & User Portal');
-
-				cheange_breadcrumb_links([
-					{ name: 'Admin & User Portal', name_of_route: 'home', disabled: true }
-				]);
+				value = 'Admin & User';
 			}
+			cheange_breadcrumb_heading_and_title_heading(`${value} Portal`);
+
+			cheange_breadcrumb_links([
+				{ name: `${value} Portal`, name_of_route: 'home', disabled: true }
+			]);
 		}
 
 		set_breadcrumb_heading_and_title_heading_and_breadcrumb_links();
@@ -74,7 +78,8 @@ export default {
 		});
 
 		return {
-			is_admin_authenticate
+			is_admin_authenticate,
+			is_user_authenticate
 		};
 	}
 };

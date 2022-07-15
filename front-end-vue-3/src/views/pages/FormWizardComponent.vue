@@ -23,7 +23,7 @@ export default {
 		cheange_breadcrumb_heading_and_title_heading('Form Wizard');
 
 		cheange_breadcrumb_links([
-			{ name: 'Home', name_of_route: 'home', disabled: false },
+			{ name: 'User Portal', name_of_route: 'home', disabled: false },
 			{ name: 'Form Wizard', name_of_route: 'formwizard', disabled: true }
 		]);
 

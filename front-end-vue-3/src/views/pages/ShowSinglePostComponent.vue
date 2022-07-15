@@ -96,6 +96,7 @@
 import useBreadcrumbAndTitle from '../../composables/breadcrumb_and_title_composable';
 import useAddAndEditPostByAdminComposable from '../../composables/add_and_edit_post_by_admin_composable';
 import useRetrieveSingleRecordComposable from '../../composables/retrieve_single_record';
+import useIsAuthenticate from '../../composables/getters/is_authenticate_composable';
 import { useRouter } from 'vue-router';
 
 export default {
@@ -109,6 +110,7 @@ export default {
 	setup(props) {
 		// Breadcrumb And Title related composables
 		const router = useRouter();
+		const { is_admin_authenticate, is_user_authenticate } = useIsAuthenticate();
 		const {
 			cheange_breadcrumb_links,
 			cheange_breadcrumb_heading_and_title_heading
@@ -124,21 +126,37 @@ export default {
 		// Breadcrumb And Title related code
 		cheange_breadcrumb_heading_and_title_heading('Single Post');
 
-		cheange_breadcrumb_links([
-			{ name: 'Admin Portal', name_of_route: 'home', disabled: false },
-			{
-				name: 'Posts',
-				name_of_route: 'show_posts_for_admin_and_user',
-				disabled: false
-			},
-			{
-				name: 'Single Post',
-				name_of_route: 'show_single_post',
-				params: { post_id: props.post_id },
-				disabled: true
+		if (
+			is_admin_authenticate.value == true ||
+			is_user_authenticate.value == true
+		) {
+			let user_type = null;
+			if (is_admin_authenticate.value) {
+				user_type = 'Admin';
+			} else if (is_user_authenticate.value) {
+				user_type = 'User';
 			}
-		]);
 
+			cheange_breadcrumb_links([
+				{
+					name: `${user_type} Portal`,
+					name_of_route: 'home',
+					disabled: false
+				},
+
+				{
+					name: 'Posts',
+					name_of_route: 'show_posts_for_admin_and_user',
+					disabled: false
+				},
+				{
+					name: 'Single Post',
+					name_of_route: 'show_single_post',
+					params: { post_id: props.post_id },
+					disabled: true
+				}
+			]);
+		}
 		const { retrieve_single_record } = useRetrieveSingleRecordComposable();
 
 		let result = retrieve_single_record(props.post_id);
