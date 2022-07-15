@@ -11,6 +11,12 @@ export default {
 			let user_data = payload.user_data;
 			localStorage.setItem('user_data', JSON.stringify(user_data));
 			context.commit('set_user_data', user_data);
+			context.commit('post_module/cheange_recent_page_value', 1, {
+				root: true
+			});
+			context.commit('post_module/cheange_search_value', '', {
+				root: true
+			});
 		}
 	},
 
